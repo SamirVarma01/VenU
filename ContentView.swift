@@ -14,53 +14,47 @@ struct ContentView: View {
     @Query private var items: [Item]
 
     var body: some View {
-        // Show authentication view if not logged in
+        // Show onboarding view if not logged in
         if !firebaseManager.isAuthenticated {
-            AuthenticationView()
+            OnboardingView()
         } else {
             mainContentView
         }
     }
     
     private var mainContentView: some View {
-        NavigationViewWrapper {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
 #if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+        TabView {
+            ConcertBrowserView()
+                .tabItem {
+                    Label("Concerts", systemImage: "music.note.list")
                 }
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Sign Out") {
-                        try? firebaseManager.signOut()
-                    }
+            
+            ProfilePlaceholderView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.circle")
                 }
+        }
 #else
-                ToolbarItem(placement: .navigation) {
-                    Button("Sign Out") {
-                        try? firebaseManager.signOut()
-                    }
+        NavigationSplitView {
+            List {
+                NavigationLink {
+                    ConcertBrowserView()
+                } label: {
+                    Label("Concerts", systemImage: "music.note.list")
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                
+                NavigationLink {
+                    ProfilePlaceholderView()
+                } label: {
+                    Label("Profile", systemImage: "person.circle")
                 }
             }
+            .navigationTitle("VenU")
+        } detail: {
+            Text("Select a section")
         }
+#endif
     }
 
     private func addItem() {
@@ -76,6 +70,88 @@ struct ContentView: View {
                 modelContext.delete(items[index])
             }
         }
+    }
+}
+
+// MARK: - Placeholder Views
+
+struct ProfilePlaceholderView: View {
+    @EnvironmentObject var firebaseManager: FirebaseManager
+    @State private var isSeeding = false
+    @State private var seedMessage = ""
+    @State private var showSeedMessage = false
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image(systemName: "person.circle.fill")
+                    .font(.system(size: 100))
+                    .foregroundStyle(.blue)
+                
+                if let user = firebaseManager.currentUser {
+                    Text(user.email ?? "No email")
+                        .font(.title3)
+                }
+                
+                Text("Profile page coming soon!")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                Divider()
+                    .padding(.vertical)
+                
+                // Developer Tools
+                VStack(spacing: 12) {
+                    Text("Developer Tools")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    
+                    Button {
+                        Task {
+                            await seedSampleData()
+                        }
+                    } label: {
+                        if isSeeding {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Label("Seed Sample Concerts", systemImage: "wand.and.stars")
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isSeeding)
+                }
+                
+                Spacer()
+                
+                Button("Sign Out") {
+                    try? firebaseManager.signOut()
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            .navigationTitle("Profile")
+            .alert("Seeding Data", isPresented: $showSeedMessage) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(seedMessage)
+            }
+        }
+    }
+    
+    private func seedSampleData() async {
+        isSeeding = true
+        
+        do {
+            try await SampleDataSeeder.seedSampleConcerts()
+            seedMessage = "Successfully added 8 sample concerts!"
+            showSeedMessage = true
+        } catch {
+            seedMessage = "Error seeding data: \(error.localizedDescription)"
+            showSeedMessage = true
+        }
+        
+        isSeeding = false
     }
 }
 

@@ -18,6 +18,7 @@ final class User {
     var isEmailVerified: Bool
     var isProfilePublic: Bool
     var createdAt: Date
+    var updatedAt: Date
     var bio: String?
     
     // Relationships
@@ -33,6 +34,7 @@ final class User {
         isEmailVerified: Bool = false,
         isProfilePublic: Bool = true,
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         bio: String? = nil
     ) {
         self.id = id
@@ -43,6 +45,7 @@ final class User {
         self.isEmailVerified = isEmailVerified
         self.isProfilePublic = isProfilePublic
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.bio = bio
     }
 }
@@ -60,6 +63,7 @@ extension User {
             "isEmailVerified": isEmailVerified,
             "isProfilePublic": isProfilePublic,
             "createdAt": createdAt.timeIntervalSince1970,
+            "updatedAt": updatedAt.timeIntervalSince1970,
             "bio": bio as Any
         ]
     }
@@ -77,6 +81,8 @@ extension User {
             return nil
         }
         
+        let updatedAtTimestamp = data["updatedAt"] as? TimeInterval ?? createdAtTimestamp
+        
         return User(
             id: id,
             email: email,
@@ -86,6 +92,7 @@ extension User {
             isEmailVerified: isEmailVerified,
             isProfilePublic: isProfilePublic,
             createdAt: Date(timeIntervalSince1970: createdAtTimestamp),
+            updatedAt: Date(timeIntervalSince1970: updatedAtTimestamp),
             bio: data["bio"] as? String
         )
     }
