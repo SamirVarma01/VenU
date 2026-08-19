@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Schools collection — publicly readable: the school-select screen is
+    // shown during onboarding, before the user has an account, so this
+    // can't require request.auth.
+    match /schools/{schoolId} {
+      allow read: if true;
+      allow write: if false; // Only admins can modify schools
+    }
+
+    // Concerts collection
+    match /concerts/{concertId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null; // Adjust based on your needs
+    }
+
+    // Venues collection
+    match /venues/{venueId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only admins can modify venues
+    }
+
+    // Concert Attendance
+    match /concert_attendance/{attendanceId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.userID == request.auth.uid;
+    }
+
+    // Friendships
+    match /friendships/{friendshipId} {
+      allow read: if request.auth != null &&
+        (resource.data.requesterID == request.auth.uid || resource.data.recipientID == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        (resource.data.requesterID == request.auth.uid || resource.data.recipientID == request.auth.uid);
+    }
+
+    // Messages
+    match /messages/{messageId} {
+      allow read: if request.auth != null &&
+        (resource.data.senderID == request.auth.uid || resource.data.recipientID == request.auth.uid);
+      allow create: if request.auth != null && request.resource.data.senderID == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.senderID == request.auth.uid;
+    }
+
+    // Reviews (concert review/post feed) — new collection, did not exist
+    // in the legacy-ios prototype.
+    match /reviews/{reviewId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.authorID == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.authorID == request.auth.uid;
+    }
+  }
+}

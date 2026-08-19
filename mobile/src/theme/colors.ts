@@ -1,0 +1,61 @@
+// Ported verbatim from the Tailwind config embedded in designs/*.html
+// (Figma "neon nightlife" export). One fixed dark palette — the designs
+// don't define a light mode.
+export const colors = {
+  surfaceContainerHigh: '#2a2a2a',
+  onSecondaryFixedVariant: '#304f00',
+  onSurfaceVariant: '#cfc2d6',
+  onErrorContainer: '#ffdad6',
+  inverseOnSurface: '#313030',
+  surfaceVariant: '#353534',
+  primaryFixed: '#f0dbff',
+  errorContainer: '#93000a',
+  surface: '#131313',
+  error: '#ffb4ab',
+  outlineVariant: '#4d4354',
+  onPrimaryFixed: '#2c0051',
+  secondaryContainer: '#7ac100',
+  tertiaryFixed: '#acedff',
+  onTertiaryFixedVariant: '#004e5c',
+  secondaryFixedDim: '#91db2a',
+  surfaceContainerLowest: '#0e0e0e',
+  onSecondaryFixed: '#102000',
+  inversePrimary: '#842bd2',
+  onTertiaryContainer: '#002f38',
+  onTertiary: '#003640',
+  surfaceContainer: '#201f1f',
+  onError: '#690005',
+  surfaceBright: '#3a3939',
+  tertiaryFixedDim: '#4cd7f6',
+  primary: '#ddb7ff',
+  secondary: '#94de2d',
+  onSecondary: '#1f3700',
+  onSurface: '#e5e2e1',
+  surfaceTint: '#ddb7ff',
+  primaryContainer: '#b76dff',
+  background: '#131313',
+  onSecondaryContainer: '#2c4900',
+  onPrimaryContainer: '#400071',
+  onPrimaryFixedVariant: '#6900b3',
+  onPrimary: '#490080',
+  tertiary: '#4cd7f6',
+  tertiaryContainer: '#009eb9',
+  surfaceContainerLow: '#1c1b1b',
+  outline: '#988d9f',
+  primaryFixedDim: '#ddb7ff',
+  inverseSurface: '#e5e2e1',
+  secondaryFixed: '#acf847',
+  onBackground: '#e5e2e1',
+  surfaceDim: '#131313',
+  onTertiaryFixed: '#001f26',
+  surfaceContainerHighest: '#353534',
+} as const;
+
+// The gradient every "primary" CTA / wordmark in the designs uses.
+export const primaryGradient = [colors.primary, colors.tertiary] as const;
+
+export const glow = {
+  primary: 'rgba(221, 183, 255, 0.3)',
+  secondary: 'rgba(148, 222, 45, 0.4)',
+  tertiary: 'rgba(76, 215, 246, 0.8)',
+} as const;
