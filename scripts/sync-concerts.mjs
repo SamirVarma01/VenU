@@ -10,6 +10,7 @@
 // scripts/service-account.json — see scripts/.env.example.
 
 import { db } from './lib/firebaseAdmin.mjs';
+import { mapConcert, mapVenue } from './lib/ticketmaster.mjs';
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((arg) => {
@@ -58,53 +59,15 @@ const venues = new Map();
 const concerts = [];
 
 for (const event of events) {
-  const venue = event._embedded?.venues?.[0];
-  if (!venue) continue;
+  const tmVenue = event._embedded?.venues?.[0];
+  if (!tmVenue) continue;
 
-  if (!venues.has(venue.id)) {
-    venues.set(venue.id, {
-      id: venue.id,
-      name: venue.name,
-      address: venue.address?.line1 ?? '',
-      city: venue.city?.name ?? '',
-      state: venue.state?.stateCode ?? venue.state?.name ?? '',
-      country: venue.country?.countryCode ?? 'USA',
-      zipCode: venue.postalCode ?? null,
-      latitude: parseFloat(venue.location?.latitude),
-      longitude: parseFloat(venue.location?.longitude),
-      capacity: null,
-      imageURL: venue.images?.[0]?.url ?? null,
-      source: 'ticketmaster',
-      externalID: venue.id,
-    });
+  if (!venues.has(tmVenue.id)) {
+    venues.set(tmVenue.id, mapVenue(tmVenue));
   }
 
-  const priceRange = event.priceRanges?.[0];
-  const artistName = event._embedded?.attractions?.[0]?.name ?? event.name;
-  const dateTime = event.dates?.start?.dateTime
-    ? Date.parse(event.dates.start.dateTime)
-    : event.dates?.start?.localDate
-      ? Date.parse(event.dates.start.localDate)
-      : null;
-  if (!dateTime) continue;
-
-  concerts.push({
-    id: event.id,
-    name: event.name,
-    artistName,
-    venueID: venue.id,
-    venueName: venue.name,
-    date: dateTime,
-    imageURL: event.images?.[0]?.url ?? null,
-    ticketURL: event.url ?? null,
-    minPrice: priceRange?.min ?? null,
-    maxPrice: priceRange?.max ?? null,
-    currency: priceRange?.currency ?? 'USD',
-    genre: event.classifications?.[0]?.genre?.name ?? null,
-    source: 'ticketmaster',
-    externalID: event.id,
-    lastUpdated: Date.now(),
-  });
+  const concert = mapConcert(event, venues.get(tmVenue.id));
+  if (concert) concerts.push(concert);
 }
 
 const batch = db.batch();

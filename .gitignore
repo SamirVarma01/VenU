@@ -116,3 +116,4 @@ service-account.json
 # Firebase CLI debug logs — can contain account email/project details
 firebase-debug.log
 firebase-debug.*.log
+firestore-debug.log

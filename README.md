@@ -8,6 +8,7 @@ VenU is a social networking app for college students to discover concerts, conne
 
 - **[`mobile/`](mobile)** — the active app: React Native + Expo (TypeScript), targeting iOS and Android from one codebase. See [`mobile/README.md`](mobile/README.md) for setup/run instructions.
 - **[`scripts/`](scripts)** — admin tooling (Firebase Admin SDK) for seeding `schools` and syncing real concert/venue data from Ticketmaster, since both collections deliberately block client writes. See [`scripts/README.md`](scripts/README.md).
+- **[`firestore-tests/`](firestore-tests)** — unit tests for `firestore.rules`, run against the real Firestore emulator. See [`firestore-tests/README.md`](firestore-tests/README.md).
 - **[`legacy-ios/`](legacy-ios)** — the original native Swift/SwiftUI/SwiftData iOS-only prototype. Archived, not built or maintained, kept as schema/logic reference (see [`legacy-ios/README.md`](legacy-ios/README.md)).
 - **`firebase.json`, `firestore.rules`, `firestore.indexes.json`, `.firebaserc`** — shared Firebase project config (project: `venyou-9ef84`), used by both the mobile app and, eventually, Cloud Functions.
 
@@ -31,6 +32,12 @@ Auth (sign up with `.edu`/`.ac.uk`/`.ac.in` email, school-domain matching, email
 3. Deploy security rules: `firebase deploy --only firestore:rules` (rules live in [`firestore.rules`](firestore.rules)).
 4. Copy `mobile/.env.example` to `mobile/.env` and fill in your web app config from Project Settings → General → Your apps.
 5. Seed at least one school and sync real concert data using [`scripts/`](scripts) — `npm run seed-schools` then `npm run sync-concerts`.
+
+## Testing
+
+- **Firestore rules**: `cd firestore-tests && npm test` — runs against the real emulator, not mocks. Requires Java.
+- **Ticketmaster→Firestore mapping**: `cd scripts && npm test` — pure-function tests, no network/Firebase needed.
+- **Pure app logic** (e.g. college-email validation): `cd mobile && npm run test:ci` — Jest. Anything that imports the live Firebase SDK is deliberately kept out of this layer (see `mobile/src/features/auth/validation.ts` vs `api.ts`) since Jest can't parse the SDK's ESM build.
 
 ## Development
 

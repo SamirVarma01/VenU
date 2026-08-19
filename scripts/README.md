@@ -17,3 +17,11 @@ npm run sync-concerts -- --school=rutgers-new-brunswick --radius=25   # pulls re
 ```
 
 `sync-concerts` reads the school's lat/long from Firestore (so run `seed-schools` first), queries Ticketmaster for music events within `--radius` miles, and upserts them. Re-running it is safe — writes use `merge: true` keyed by Ticketmaster's own IDs.
+
+## Tests
+
+The Ticketmaster→Firestore mapping logic (`lib/ticketmaster.mjs`) is pure and unit-tested with Node's built-in test runner — no network or Firebase needed:
+
+```bash
+npm test
+```

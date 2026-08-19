@@ -14,17 +14,7 @@ import { auth } from '../../firebase/config';
 import { usersCollection } from '../../firebase/collections';
 import type { User } from '../../types/models';
 
-const COLLEGE_EMAIL_SUFFIXES = ['.edu', '.ac.uk', '.ac.in'];
-
-export function validateCollegeEmail(email: string): boolean {
-  const lower = email.toLowerCase();
-  return COLLEGE_EMAIL_SUFFIXES.some((suffix) => lower.endsWith(suffix));
-}
-
-export function extractDomain(email: string): string {
-  const parts = email.toLowerCase().split('@');
-  return parts.length > 1 ? parts[1] : '';
-}
+export { validateCollegeEmail, extractDomain } from './validation';
 
 export async function signUp(email: string, password: string): Promise<FirebaseUser> {
   const result = await createUserWithEmailAndPassword(auth, email, password);

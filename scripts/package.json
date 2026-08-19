@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "seed-schools": "node --env-file=.env seed-schools.mjs",
-    "sync-concerts": "node --env-file=.env sync-concerts.mjs"
+    "sync-concerts": "node --env-file=.env sync-concerts.mjs",
+    "test": "node --test"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0"
